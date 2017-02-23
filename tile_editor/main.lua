@@ -1,15 +1,17 @@
+
 require "gooi"
+--require "maps"
 
-tilesets = {} -- 1 for first loaded and so on ... in it is a tiles table with all tiles
-tilesets_img = {}
-btn = {}
+local tilesets = {} -- 1 for first loaded and so on ... in it is a tiles table with all tiles
+local tilesets_img = {}
+local btn = {}
 
-map = {}
+local map = {}
 map[1] = {}
 map[2] = {}
 map[3] = {}
-dummy_tile = nil
-dummy_img  = nil
+local dummy_tile = nil
+local dummy_img  = nil
 
 local tile_page_count = 1;
 local btn_count = 1
@@ -22,25 +24,56 @@ local show_grid = true
 
 local scale_btns  = 1;
 local scale_tiles = 1;
+
+
+local gr = love.graphics
+local kb = love.keyboard
+local mo = love.mouse
+
 ------------------------------
 --  Own functions
 ------------------------------
 function save_map()
 
-gooi.alert("test")
+file_name = txt_save_name.text
 
-file = io.open("map.lua","w")
---file:write("print \"Hallo test \" " )
+--file = io.open("map.lua","w")
+file = io.open(file_name..".lua","w")
+
+file:write(file_name.." = {}\n")
+file:write(file_name..".__index = "..file_name.."\n")
 
 for __ = 1 , 3 do
-  for _ = 1, #map[__] do
-    for _j = 1,#map[__][_] do
-      file:write(map[__][_][_j]or"0" + " ")
+  file:write(file_name..".mapl"..__.." = {")
+  for _ = 1, txt_map_h.text do
+    file:write("{")
+    for _j = 1,txt_map_w.text do
+      if _j ~= txt_map_w.text-0 then
+        file:write(map[__][_][_j]or"0" )
+        file:write(",")
+      else
+        file:write(map[__][_][_j]or"0" )
+        --print("test1")
+      end
     end
-    file:write("\n")
+    --line is finished
+    if _ ~= txt_map_h.text-0 then
+      file:write("},")
+      file:write("\n")
+    else
+      file:write("}")
+      file:write("\n")
+      --print("test2")
+    end
   end
+  --table is finished
+  file:write("}")
   file:write("\n\n")
+  
+  
+  gooi.alert("Map was saved !!")
 end
+
 
 
 
@@ -119,6 +152,7 @@ function disable_edit_dlg (bool)
     --disables +/- for tiles
     btn_plus:setEnabled(false)
     btn_minus:setEnabled(false)
+    btn_save:setEnabled(false)
   else
     --enables the things that were disabled before
     for i = 1 , #btn do
@@ -126,6 +160,7 @@ function disable_edit_dlg (bool)
     end
     btn_plus:setEnabled(true)
     btn_minus:setEnabled(true)
+    btn_save:setEnabled(true)
   end
 
 end
@@ -168,14 +203,12 @@ end
 
 --preload importent values /files into the programm
 function love.load()
-	gr = love.graphics
-	kb = love.keyboard
-	mo = love.mouse
+  
 
+  
 if arg[#arg] == "-debug" then require("mobdebug").start() end
-print(#arg)
 
-    dummy_img = gr.newImage("dummy.png")
+    dummy_img = gr.newImage("images/dummy.png")
     dummy_tile = gr.newQuad(0,   0, 32, 32, 32, 32)
 
     style = {
@@ -205,10 +238,10 @@ print(#arg)
   bg_tiles = gooi.newLabel("", _button.x -50, 0 ,gr.getWidth()--[[_button.w*13]] , 4* _button.h):setOpaque(true):roundness(0, 0)--setOrientation("center")
   
   
-  lbl_tiles = gooi.newLabel(" Tiles", _button.x -30, 10 ,gr.getWidth()-(_button.x-30)-5):setOpaque(true):roundness(.5, 0):roundness(0, 0):bg("218AB8"):setOrientation("center")
+  local lbl_tiles = gooi.newLabel(" Tiles", _button.x -30, 10 ,gr.getWidth()-(_button.x-30)-5):setOpaque(true):roundness(.5, 0):roundness(0, 0):bg("218AB8"):setOrientation("center")
   
   --the "slider"
-  lbl2 = gooi.newLabel("1", _button.x-30, _button.y, 25, 2*_button.h + 5):setOpaque(true):roundness(.2, 0):setOrientation("center")
+   lbl2 = gooi.newLabel("1", _button.x-30, _button.y, 25, 2*_button.h + 5):setOpaque(true):roundness(.2, 0):setOrientation("center")
   
   btn_plus = gooi.newButton(" ", _button.x - 25 , _button.h +10 , 15,15 ):bg({255,255,255,170}):onPress(function()
       --print(spi_sets.value)
@@ -252,11 +285,8 @@ print(#arg)
   
     _button.start = btn[1].id
     --print(_button.start)
----------------------
----         Load / Save Buttons 
----------------------
-lb_bg_save =  gooi.newLabel("",0, 0 , x_def-50, 4*_button.h):setOpaque(true):roundness(0, 0)
-btn_save   = gooi.newButton("Save", 10,10):onRelease(function(f)     save_map() end )
+
+initSave(x_def,_button)
 ---------------------
 ---         toolbox
 ---------------------
@@ -309,11 +339,25 @@ gooi.newLabel("/",140, 230)
  end
  
 end
+ 
+ 
+function initSave(x_def,_button)
+    ---------------------
+    ---         Load / Save Buttons 
+    ---------------------
+  lb_bg_save =  gooi.newLabel("",0, 0 , x_def-50, 4*_button.h):setOpaque(true):roundness(0, 0)
+  btn_save   = gooi.newButton("Save", 10,10):onRelease(function(f)     save_map() end )
+
+  lb_save_name  = gooi.newLabel("Name:", 70, 10)
+  txt_save_name = gooi.newText({ text = "map" ,x = 120 , y = 10, w = 95})
+    
+  end
+  
   
   
 function love.draw()
   --print"Hello, world!"
-  require("mobdebug").off()
+  
   gr.setLineWidth(1)
   --draw  grid for editing
   gr.rectangle("line", 230 , 190, 600,600)
@@ -367,11 +411,11 @@ function love.draw()
   
 
   gr.print(love.timer.getFPS().." FPS")
-  require("mobdebug").on()
+
 end
 
 function love.update(dt)
-  require("mobdebug").off()
+ 
     old_w = 39 
     old_h = 20
   
@@ -396,7 +440,7 @@ function love.update(dt)
   
   lbl2:setText(tile_page_count)
   gooi.update(dt)
-  require("mobdebug").on()
+  
 end
 
 
@@ -518,6 +562,13 @@ function love.keypressed(key)
 	gooi.keypressed(key)
 	if key == "escape" then
 		quit()
+  else
+    if key == "left" then
+      --print("hi l")
+    end
+    if key == "right" then
+      --print("hi r")
+    end
 	end
 end
 
