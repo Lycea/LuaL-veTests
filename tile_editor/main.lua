@@ -203,15 +203,23 @@ end
 
 --preload importent values /files into the programm
 function love.load()
-  
+  -- canvas stuff
+  width= gr.getWidth()
+  height =gr.getHeight()
+  scale = 1
+  wCanvas, hCanvas = width / scale, height / scale
 
+  canvas = gr.newCanvas(wCanvas, hCanvas)
+  canvas:setFilter("nearest", "nearest")
+	gooi.setCanvas(canvas)
   
+--start of everything else
 if arg[#arg] == "-debug" then require("mobdebug").start() end
 
     dummy_img = gr.newImage("images/dummy.png")
     dummy_tile = gr.newQuad(0,   0, 32, 32, 32, 32)
 
-    style = {
+  style = {
 		--font = gr.newFont(fontDir.."ProggySquare.ttf", 16),
 		fgColor = "#FFFFFF",
 		bgColor =  { 255,0,0, 170},  --#25AAE1F0
@@ -358,61 +366,71 @@ function initSave(x_def,_button)
 function love.draw()
   --print"Hello, world!"
   
-  gr.setLineWidth(1)
-  --draw  grid for editing
-  gr.rectangle("line", 230 , 190, 600,600)
-  
-  
-  if #tilesets_img > 0 then
-  -- set the icon set
-    --draw_button_preview(spi_sets.value,lbl2.text)
-   draw_map()
-  end
-  --draw lines to divide the rectangle
-  if txt_map_w.text == "" or txt_map_h.text == "" or show_grid == false then
+  gr.setCanvas(canvas)
+    gr.clear()
     
-  else
-     line_div_v = 600 / txt_map_w.text
-     line_div_h = 600 / txt_map_h.text
+    gr.setLineWidth(1)
+    --draw  grid for editing
+    gr.rectangle("line", 230 , 190, 600,600)
     
-    for i = 1 , txt_map_w.text -1 do
-      gr.line(230+line_div_v*i,190,230+line_div_v*i,790)
+    
+    if #tilesets_img > 0 then
+    -- set the icon set
+      --draw_button_preview(spi_sets.value,lbl2.text)
+     draw_map()
+    end
+    --draw lines to divide the rectangle
+    if txt_map_w.text == "" or txt_map_h.text == "" or show_grid == false then
+      
+    else
+       line_div_v = 600 / txt_map_w.text
+       line_div_h = 600 / txt_map_h.text
+      
+      for i = 1 , txt_map_w.text -1 do
+        gr.line(230+line_div_v*i,190,230+line_div_v*i,790)
+        
+      end
+      
+      for i = 1 , txt_map_h.text -1 do
+        gr.line(230,190+line_div_h*i,830,190+line_div_h*i)
+      end
+    end
+    
+    if show_help then
+      disable_start()
+      
+      gooi.alert(  "Welcome! \n"..
+                   "First stepps:\n"..
+                   "1.Enter the tilesize\n"..
+                   "2.Select a layout for the map(w: /h:\n)"..
+                   "3.Drop a tileatlas(*png)\n"..
+                   "4.Have fun :)")
+      show_help = false
       
     end
     
-    for i = 1 , txt_map_h.text -1 do
-      gr.line(230,190+line_div_h*i,830,190+line_div_h*i)
+    
+    
+    gooi.draw()
+  
+  
+  
+  
+  
+    if #tilesets_img > 0 then
+    -- set the icon set
+      draw_button_preview(spi_sets.value,lbl2.text)
+      --draw_map()
     end
-  end
-  
-  if show_help then
-    disable_start()
     
-    gooi.alert(  "Welcome! \n"..
-                 "First stepps:\n"..
-                 "1.Enter the tilesize\n"..
-                 "2.Select a layout for the map(w: /h:\n)"..
-                 "3.Drop a tileatlas(*png)\n"..
-                 "4.Have fun :)")
-    show_help = false
-    
-  end
-  
-  
-  
-  gooi.draw()
-  
-  
-  if #tilesets_img > 0 then
-  -- set the icon set
-    draw_button_preview(spi_sets.value,lbl2.text)
-    --draw_map()
-  end
-  
 
-  gr.print(love.timer.getFPS().." FPS")
+    gr.print(love.timer.getFPS().." FPS")
+  
+  gr.setCanvas()
+  gr.draw(canvas,0,0,0,scale,scale)
 
 end
+
 
 function love.update(dt)
  
