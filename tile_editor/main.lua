@@ -23,7 +23,7 @@ local btn_minus
 local show_grid = true
 
 local scale_btns  = 1;
-local scale_tiles = 1;
+local scale_tiles = 0.5;
 
 
 local gr = love.graphics
@@ -204,9 +204,9 @@ end
 --preload importent values /files into the programm
 function love.load()
   -- canvas stuff
-  width= gr.getWidth()
-  height =gr.getHeight()
-  scale = 1
+  width  = gr.getWidth()
+  height = gr.getHeight()
+  scale  = 1
   wCanvas, hCanvas = width / scale, height / scale
 
   canvas = gr.newCanvas(wCanvas, hCanvas)
@@ -227,6 +227,7 @@ if arg[#arg] == "-debug" then require("mobdebug").start() end
     glass = true,
     round = .5,
     showBorder = true,
+    font = love.graphics.newFont(love.window.toPixels(13)),  --8 for small
     borderColor = '#ffffff'
 	}
 	gooi.setStyle(style)
@@ -346,6 +347,9 @@ gooi.newLabel("/",140, 230)
     end
  end
  
+ 
+ 
+ 
 end
  
  
@@ -359,6 +363,23 @@ function initSave(x_def,_button)
   lb_save_name  = gooi.newLabel("Name:", 70, 10)
   txt_save_name = gooi.newText({ text = "map" ,x = 120 , y = 10, w = 95})
     
+   
+  lb_layer = gooi.newLabel("Scale",0, 90)
+  scale_1  = gooi.newRadio({ x = 40, y = 90 , text = "1x", radioGroup = "g2", selected = true,w = 55}):roundness(0.8,1):onRelease(function()
+		scale, gooi.sx, gooi.sy = 1, 1, 1
+		love.window.setMode(wCanvas * scale, hCanvas * scale)
+	end)
+  
+	scale_2  = gooi.newRadio({ x = 95, y = 90 , text = "2x", radioGroup = "g2",w = 55}):roundness(0.8,1):onRelease(function()
+		scale, gooi.sx, gooi.sy = 0.75, 0.75, 0.75
+		love.window.setMode(wCanvas * scale, hCanvas * scale)
+	end)
+  scale_3  = gooi.newRadio({ x = 150, y = 90 , text = "3x", radioGroup = "g2",w = 55}):roundness(0.8,1):onRelease(function()
+		scale, gooi.sx, gooi.sy = 0.5, 0.5, 0.5
+		love.window.setMode(wCanvas * scale, hCanvas * scale)
+	end)
+  
+  
   end
   
   
