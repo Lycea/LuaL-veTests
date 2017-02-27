@@ -105,7 +105,7 @@ function draw_map()
             --print("tileset "..math.floor(value).."// tile "..math.floor((value - math.floor(value))*1000))
           --print((value - math.floor(value))
           --print(math.floor((value - math.floor(value))*1000))
-          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,1,1) --last two will be calculated with the width of a tile 
+          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) --last two will be calculated with the width of a tile 
         else
           love.graphics.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
@@ -116,7 +116,7 @@ function draw_map()
         value = map[2][_][_2]
         --layer 2
         if map[2][_][_2] then
-          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,1,1) 
+          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
         else
           love.graphics.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
@@ -124,7 +124,7 @@ function draw_map()
         value = map[3][_][_2]
         --layer 3
         if map[3][_][_2] then
-          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,1,1) 
+          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
         else
           love.graphics.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
@@ -534,10 +534,10 @@ function love.filedropped(file)
      for j = 1 , cols do
       tilesets[#tilesets_img][count] = love.graphics.newQuad(x_,  y_, txt_tile_w.text, txt_tile_h.text, img_w, img_h)
       count = count + 1
-      x_ = x_+32
+      x_ = x_+txt_tile_h.text
     end
     x_ = 0
-    y_ = y_ + 32
+    y_ = y_ + txt_tile_h.text
   end
   print ("tiles: "..#tilesets[#tilesets_img])
   tilesets[#tilesets_img]['x'] = dummy_tile
