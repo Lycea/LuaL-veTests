@@ -22,10 +22,13 @@ local btn_plus
 local btn_minus
 local show_grid = true
 
+
+-- these are for scaling tiles up or down depending if bigger or smaler then default
 local scale_btns  = 1;
 local scale_tiles = 1;
 
 
+-- some shortcuts
 local gr = love.graphics
 local kb = love.keyboard
 local mo = love.mouse
@@ -105,9 +108,9 @@ function draw_map()
             --print("tileset "..math.floor(value).."// tile "..math.floor((value - math.floor(value))*1000))
           --print((value - math.floor(value))
           --print(math.floor((value - math.floor(value))*1000))
-          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) --last two will be calculated with the width of a tile 
+          gr.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) --last two will be calculated with the width of a tile 
         else
-          love.graphics.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
+          gr.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
         
         
@@ -116,17 +119,17 @@ function draw_map()
         value = map[2][_][_2]
         --layer 2
         if map[2][_][_2] then
-          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
+          gr.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
         else
-          love.graphics.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
+          gr.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
         
         value = map[3][_][_2]
         --layer 3
         if map[3][_][_2] then
-          love.graphics.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
+          gr.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
         else
-          love.graphics.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
+          gr.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
           x_ = x_ + line_div_h -- sets new starting x  so new tile
       end
@@ -179,7 +182,7 @@ function draw_button_preview(_set,_page)
   --print(_set.." ".._page.." meep\n")
      for i = (_page*20 -20 +1), (_page*20) do
        if i < (_page*20 -9) and i <= #tilesets[_set]  then
-          love.graphics.draw(tilesets_img[_set], tilesets[_set][i], button_x, 55,0,scale_btns,scale_btns)
+          gr.draw(tilesets_img[_set], tilesets[_set][i], button_x, 55,0,scale_btns,scale_btns)
                             --tileset        which quad                   width                      hight
           button_x= button_x + 50
        elseif i > (_page*20 -10) and i <= #tilesets[_set] then
@@ -187,7 +190,7 @@ function draw_button_preview(_set,_page)
            button_x = 275
            b_second_line = true
          end
-         love.graphics.draw(tilesets_img[_set], tilesets[_set][i], button_x, 105,0,scale_btns,scale_btns)
+         gr.draw(tilesets_img[_set], tilesets[_set][i], button_x, 105,0,scale_btns,scale_btns)
          button_x= button_x + 50
        else
          
@@ -227,7 +230,7 @@ if arg[#arg] == "-debug" then require("mobdebug").start() end
     glass = true,
     round = .5,
     showBorder = true,
-    font = love.graphics.newFont(love.window.toPixels(13)),  --8 for small
+    font = gr.newFont(love.window.toPixels(13)),  --8 for small
     borderColor = '#ffffff'
 	}
 	gooi.setStyle(style)
@@ -494,7 +497,7 @@ function love.filedropped(file)
     count = #tilesets_img
     print(#tilesets_img)
     
-    tilesets_img[count+1]= love.graphics.newImage(file)
+    tilesets_img[count+1]= gr.newImage(file)
     print(#tilesets_img)
     
   
@@ -532,7 +535,7 @@ function love.filedropped(file)
    local y_ = 0
   for i = 1, rows do
      for j = 1 , cols do
-      tilesets[#tilesets_img][count] = love.graphics.newQuad(x_,  y_, txt_tile_w.text, txt_tile_h.text, img_w, img_h)
+      tilesets[#tilesets_img][count] = gr.newQuad(x_,  y_, txt_tile_w.text, txt_tile_h.text, img_w, img_h)
       count = count + 1
       x_ = x_+txt_tile_h.text
     end
@@ -561,31 +564,34 @@ end
 
 
 function love.mousepressed(x, y, button)
-  if x > 230 and y > 190 then
+  if x > 230*scale and y > 190*scale then
    --print (x.." "..y)
    --print("beep\n")
    if #tilesets_img > 0 and btn_selected ~= 0 then
      b_mpr = true
      
      -- calc the rectangle where it is
-     local col = math.floor((x- 230) / line_div_h)  +1
-     local row = math.floor((y - 190) / line_div_v) +1
+     local col = math.floor((x - 230*scale) / (line_div_h*scale) ) +1
+     local row = math.floor((y - 190*scale) / (line_div_v*scale) ) +1
      --map[spi_layer.value][row][col] =  (btn_selected*lbl2.text)/1000 + spi_sets.value +1
      map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
      --print(btn_selected)
-     print((btn_selected*lbl2.text)/1000 + spi_sets.value +1 )
-     print("Btn sel: "..btn_selected .." /lbl_text "..lbl2.text )
+     --print((btn_selected*lbl2.text)/1000 + spi_sets.value +1 )
+     --print("Btn sel: "..btn_selected .." /lbl_text "..lbl2.text )
+     
+     --print("X: "..x.." Y:"..y)
+     --print("Row: "..row.." Col:"..col)
    end
   end
   gooi.pressed() 
 end
 
 function love.mousemoved( x, y, dx, dy, istouch )
-  if b_mpr and x > 230 and y > 190 then
+  if b_mpr and x > 230*scale and y > 190*scale then
    --print (x.." "..y)
    --print("moved\n")
-   local col = math.floor((x- 230) / line_div_h)  +1
-   local row = math.floor((y - 190) / line_div_v) +1
+   local col = math.floor((x- 230*scale) / (line_div_h*scale) )  +1
+   local row = math.floor((y - 190*scale) / (line_div_v*scale) ) +1
    --map[spi_layer.value][row][col] =  (btn_selected*lbl2.text)/1000 + spi_sets.value +1 
    map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
    --print( map[spi_layer.value][row][col])
