@@ -379,7 +379,7 @@ function initSave(x_def,_button)
 		love.window.setMode(wCanvas * scale, hCanvas * scale)
 	end)
   
-  
+  --
   end
   
   
