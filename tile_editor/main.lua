@@ -23,7 +23,7 @@ local btn_minus
 local show_grid = true
 
 local scale_btns  = 1;
-local scale_tiles = 0.5;
+local scale_tiles = 1;
 
 
 local gr = love.graphics
@@ -210,7 +210,7 @@ function love.load()
   wCanvas, hCanvas = width / scale, height / scale
 
   canvas = gr.newCanvas(wCanvas, hCanvas)
-  canvas:setFilter("nearest", "nearest")
+  canvas:setFilter("linear", "linear")
 	gooi.setCanvas(canvas)
   
 --start of everything else
@@ -379,7 +379,7 @@ function initSave(x_def,_button)
 		love.window.setMode(wCanvas * scale, hCanvas * scale)
 	end)
   
-  --
+  
   end
   
   
