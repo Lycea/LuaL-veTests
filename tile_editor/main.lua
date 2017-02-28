@@ -7,9 +7,10 @@ local tilesets_img = {}
 local btn = {}
 
 local map = {}
-map[1] = {}
-map[2] = {}
-map[3] = {}
+  map[1] = {}
+  map[2] = {}
+  map[3] = {}
+  
 local dummy_tile = nil
 local dummy_img  = nil
 
@@ -22,6 +23,8 @@ local btn_plus
 local btn_minus
 local show_grid = true
 
+local start_shown_tile_r = 1 -- 1 cause lua
+local start_shown_tile_s = 1 -- 1 cause lua
 
 -- these are for scaling tiles up or down depending if bigger or smaler then default
 local scale_btns  = 1;
@@ -37,6 +40,7 @@ local mo = love.mouse
 --  Own functions
 ------------------------------
 function save_map()
+
 
 file_name = txt_save_name.text
 
@@ -95,21 +99,24 @@ function draw_map()
   --print(#map[1])
   --print(#map[2])
   --print(#map[3])
-   for _ = 1 , txt_map_h.text do  -- earch line
-      for _2 = 1, txt_map_w.text do  -- each col
-        --print (_2 .. _)
+  
+   for _ = start_shown_tile_r , txt_map_w.text or start_shown_tile_r + 19 do  -- earch line
+      for _2 = start_shown_tile_s, txt_map_h.text or start_shown_tile_s + 19 do  -- each col
+        
+        
         local value = map[1][_][_2]
         --layer1
         if map[1][_][_2] then
-
           --print some debug stuff to the console ... maybe not needed anymore
             --print(math.floor(((value*1000)%1000)+0.1))
             --print(value-math.floor(value))
             --print("tileset "..math.floor(value).."// tile "..math.floor((value - math.floor(value))*1000))
           --print((value - math.floor(value))
           --print(math.floor((value - math.floor(value))*1000))
+          --print "here"
           gr.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) --last two will be calculated with the width of a tile 
         else
+          --print "not here"
           gr.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
         
@@ -275,16 +282,16 @@ if arg[#arg] == "-debug" then require("mobdebug").start() end
       btn[btn_count] = gooi.newButton("    ", _button.x, _button.y, _button.w, _button.h):bg({255,0,0}):onRelease(function(f)
           if btn_selected == 0 then
             
-            print("Selected button "..f.id)
+           --print("Selected button "..f.id)
             btn[f.id -(_button.start-1)]:bg("#00ff00")
             btn_selected = f.id -(_button.start-1)
-            print(btn_selected)
+            --print(btn_selected)
           else
-            print("Selected button "..f.id)
+            --print("Selected button "..f.id)
             btn[f.id -(_button.start-1)]:bg("#00ff00")
             btn[btn_selected]:bg("#ff0000")
             btn_selected = f.id -(_button.start-1)
-            print(btn_selected)
+            --print(btn_selected)
           end
           
         end
@@ -388,8 +395,7 @@ function initSave(x_def,_button)
   
   
 function love.draw()
-  --print"Hello, world!"
-  
+
   gr.setCanvas(canvas)
     gr.clear()
     
@@ -407,15 +413,15 @@ function love.draw()
     if txt_map_w.text == "" or txt_map_h.text == "" or show_grid == false then
       
     else
-       line_div_v = 600 / txt_map_w.text
-       line_div_h = 600 / txt_map_h.text
+       line_div_v = 600 / 20--txt_map_w.text   now 20 is max num in view and does not change!
+       line_div_h = 600 / 20--txt_map_h.text
       
-      for i = 1 , txt_map_w.text -1 do
+      for i = 1 , 20 -1 do
         gr.line(230+line_div_v*i,190,230+line_div_v*i,790)
         
       end
       
-      for i = 1 , txt_map_h.text -1 do
+      for i = 1 , 20 -1 do
         gr.line(230,190+line_div_h*i,830,190+line_div_h*i)
       end
     end
@@ -571,10 +577,16 @@ function love.mousepressed(x, y, button)
      b_mpr = true
      
      -- calc the rectangle where it is
-     local col = math.floor((x - 230*scale) / (line_div_h*scale) ) +1
-     local row = math.floor((y - 190*scale) / (line_div_v*scale) ) +1
+     local col = math.floor((x - 230*scale) / (line_div_h*scale) ) +1 + (start_shown_tile_s-1)
+     local row = math.floor((y - 190*scale) / (line_div_v*scale) ) +1 + (start_shown_tile_r-1)
      --map[spi_layer.value][row][col] =  (btn_selected*lbl2.text)/1000 + spi_sets.value +1
+     
+     if row  > txt_map_h.text*1 or col > txt_tile_w.text*1 then
+       return
+     end
      map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
+     
+     
      --print(btn_selected)
      --print((btn_selected*lbl2.text)/1000 + spi_sets.value +1 )
      --print("Btn sel: "..btn_selected .." /lbl_text "..lbl2.text )
@@ -590,9 +602,13 @@ function love.mousemoved( x, y, dx, dy, istouch )
   if b_mpr and x > 230*scale and y > 190*scale then
    --print (x.." "..y)
    --print("moved\n")
-   local col = math.floor((x- 230*scale) / (line_div_h*scale) )  +1
-   local row = math.floor((y - 190*scale) / (line_div_v*scale) ) +1
+   local col = math.floor((x- 230*scale) / (line_div_h*scale) )  +1 + (start_shown_tile_s-1)
+   local row = math.floor((y - 190*scale) / (line_div_v*scale) ) +1 + (start_shown_tile_r-1)
    --map[spi_layer.value][row][col] =  (btn_selected*lbl2.text)/1000 + spi_sets.value +1 
+   
+   if row  > txt_map_h.text*1 or col > txt_tile_w.text*1 then
+       return
+   end
    map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
    --print( map[spi_layer.value][row][col])
    end
@@ -609,12 +625,27 @@ function love.keypressed(key)
 		quit()
   else
     if key == "left" then
-      --print("hi l")
+      if start_shown_tile_s ~= 1 then
+        start_shown_tile_s = start_shown_tile_s -1
+      end
     end
     if key == "right" then
-      --print("hi r")
+      if start_shown_tile_s ~= txt_map_w.text*1 then
+        start_shown_tile_s = start_shown_tile_s +1
+      end
+    end
+    if key == "up" then
+      if start_shown_tile_r ~= 1 then
+        start_shown_tile_r = start_shown_tile_r -1
+      end
+    end
+    if key == "down" then
+      if start_shown_tile_r ~= txt_map_h.text*1 then
+        start_shown_tile_r = start_shown_tile_r +1
+      end
     end
 	end
+  --print("Row: ".. start_shown_tile_r.."  Span: "..start_shown_tile_s)
 end
 
 function quit()
