@@ -43,6 +43,7 @@ local mo = love.mouse
 local bDraw = true
 ------------------------------
 --  Own functions
+--  TODO: Test
 ------------------------------
 function save_map()
 
@@ -95,7 +96,8 @@ io.close(file)
 
 end
 
-
+--TODO: Fix Bug
+--BUG: Draws to the end of lines
 function draw_map()
   
   local x_ = 230
@@ -384,7 +386,7 @@ function love.load()
  --print(#map[1].." "..#map[1][1])
  
  
- 
+ --curve = love.math.newBezierCurve(300,300,350,400)
 end
  
  
@@ -421,6 +423,10 @@ function initSave(x_def,_button)
   
 function love.draw()
 
+    
+    
+    --love.graphics.line(curve:render())
+    
   gr.setCanvas(canvas)
     gr.clear()
     mx , my = love.mouse.getPosition()
@@ -620,7 +626,10 @@ end
 
 function love.mousepressed(x, y, button)
     gooi.pressed() 
-  if x > 230*scale and y > 190*scale then
+  if x > 230*scale and y > 190*scale and x < 830*scale and y < height -50*scale then
+    print("In x:"..x.." y:"..y)
+    print("Max x:"..830*scale.." y:"..height -50*scale)
+    --print("Max x:"..x.." y:"..y)
    --print (x.." "..y)
    --print("beep\n")
    if #tilesets_img > 0 and btn_selected ~= 0 then
@@ -653,7 +662,7 @@ function love.mousepressed(x, y, button)
 end
 
 function love.mousemoved( x, y, dx, dy, istouch )
-  if b_mpr and x > 230*scale and y > 190*scale then
+  if b_mpr and x > 230*scale and y > 190*scale and x < 830*scale and y < height -50*scale then
    --print (x.." "..y)
    --print("moved\n")
    local col = math.floor((x- 230*scale) / (line_div_h*scale) )  +1 + (start_shown_tile_s-1)
