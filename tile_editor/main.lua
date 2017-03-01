@@ -226,6 +226,10 @@ end
 
 --preload importent values /files into the programm
 function love.load()
+  --life debugg
+  if arg[#arg] == "-debug" then require("mobdebug").start() end
+
+  
   -- canvas stuff
   width  = gr.getWidth()
   height = gr.getHeight()
@@ -237,7 +241,7 @@ function love.load()
 	gooi.setCanvas(canvas)
   
 --start of everything else
-if arg[#arg] == "-debug" then require("mobdebug").start() end
+
 
     dummy_img = gr.newImage("images/dummy.png")
     dummy_tile = gr.newQuad(0,   0, 32, 32, 32, 32)
@@ -419,6 +423,12 @@ function love.draw()
 
   gr.setCanvas(canvas)
     gr.clear()
+    mx , my = love.mouse.getPosition()
+    
+    if mDebugMode then
+    gr.rectangle("fill",mx,my,1,1)
+    gr.print(mx.." "..my,mx - 50,my -20 )
+    end
     
     gr.setLineWidth(1)
     --draw  grid for editing
