@@ -396,12 +396,12 @@ function initSave(x_def,_button)
     
    
   lb_layer = gooi.newLabel("Scale",0, 90)
-  scale_1  = gooi.newRadio({ x = 40, y = 90 , text = "1x", radioGroup = "g2", w = 55}):roundness(0,1):onRelease(function()
+  scale_1  = gooi.newRadio({ x = 40, y = 90 , text = "1x", radioGroup = "g2",selected = true, w = 55}):roundness(0,1):onRelease(function()
 		scale, gooi.sx, gooi.sy = 1, 1, 1
 		love.window.setMode(wCanvas * scale, hCanvas * scale)
 	end)
   
-	scale_2  = gooi.newRadio({ x = 95, y = 90 , text = "2x", radioGroup = "g2",selected = true,w = 55}):roundness(0,1):onRelease(function()
+	scale_2  = gooi.newRadio({ x = 95, y = 90 , text = "2x", radioGroup = "g2",w = 55}):roundness(0,1):onRelease(function()
 		scale, gooi.sx, gooi.sy = 0.75, 0.75, 0.75
 		love.window.setMode(wCanvas * scale, hCanvas * scale)
 	end)
