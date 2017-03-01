@@ -30,12 +30,17 @@ local start_shown_tile_s = 1 -- 1 cause lua
 local scale_btns  = 1;
 local scale_tiles = 1;
 
+local old_w = 20 
+local old_h = 20
+
 
 -- some shortcuts
 local gr = love.graphics
 local kb = love.keyboard
 local mo = love.mouse
 
+
+local bDraw = true
 ------------------------------
 --  Own functions
 ------------------------------
@@ -100,13 +105,19 @@ function draw_map()
   --print(#map[2])
   --print(#map[3])
   
-   for _ = start_shown_tile_r , txt_map_w.text or start_shown_tile_r + 19 do  -- earch line
-      for _2 = start_shown_tile_s, txt_map_h.text or start_shown_tile_s + 19 do  -- each col
+   for _ = start_shown_tile_r , txt_map_h.text or start_shown_tile_r + 19 do  -- earch line
+      for _2 = start_shown_tile_s, txt_map_w.text or start_shown_tile_s + 19 do  -- each col
         
         
-        local value = map[1][_][_2]
+        
         --layer1
+        --print ("Line:"..start_shown_tile_r.."span:"..start_shown_tile_s)
+        
+
+        
         if map[1][_][_2] then
+          
+          local value = map[1][_][_2]
           --print some debug stuff to the console ... maybe not needed anymore
             --print(math.floor(((value*1000)%1000)+0.1))
             --print(value-math.floor(value))
@@ -123,17 +134,19 @@ function draw_map()
         
         
         
-        value = map[2][_][_2]
+       
         --layer 2
         if map[2][_][_2] then
+          local value = map[2][_][_2]
           gr.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
         else
           gr.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
         end
         
-        value = map[3][_][_2]
+        
         --layer 3
         if map[3][_][_2] then
+          local value = map[3][_][_2]
           gr.draw(tilesets_img[math.floor(value)], tilesets[math.floor(value)][math.floor(((value*1000)%1000)+0.1)-1],x_ ,y_,0,scale_tiles,scale_tiles) 
         else
           gr.draw(dummy_img, dummy_tile,x_ ,y_,0,1,1)
@@ -232,17 +245,19 @@ if arg[#arg] == "-debug" then require("mobdebug").start() end
   style = {
 		--font = gr.newFont(fontDir.."ProggySquare.ttf", 16),
 		fgColor = "#FFFFFF",
-		bgColor =  { 255,0,0, 170},  --#25AAE1F0
+		bgColor =  { 255,0,0, 180},  --#25AAE1F0
     mode3d = true,
-    glass = true,
+    glass = false,
     round = .5,
     showBorder = true,
     font = gr.newFont(love.window.toPixels(13)),  --8 for small
-    borderColor = '#ffffff'
+    borderColor = '#ffffff',
+    borderWidth = 1
 	}
+  
 	gooi.setStyle(style)
 	gooi.desktopMode()
-  
+
   
   ----------------------------------------
   --             Tile selection screen part
@@ -262,20 +277,20 @@ if arg[#arg] == "-debug" then require("mobdebug").start() end
   --the "slider"
    lbl2 = gooi.newLabel("1", _button.x-30, _button.y, 25, 2*_button.h + 5):setOpaque(true):roundness(.2, 0):setOrientation("center")
   
-  btn_plus = gooi.newButton(" ", _button.x - 25 , _button.h +10 , 15,15 ):bg({255,255,255,170}):onPress(function()
+  btn_plus = gooi.newButton("+", _button.x - 25 , _button.h +10 , 15,15 ):bg({255,255,255,170}):onPress(function()
       --print(spi_sets.value)
       if tile_page_count < #tilesets[spi_sets.value+1] /20 then
         tile_page_count = tile_page_count +1
       end
 	end)
 
-  btn_minus = gooi.newButton(" ", _button.x - 25 , _button.w*3 -15  , 15,15 ):bg({255,255,255,170}):onPress(function()  
+  btn_minus = gooi.newButton("-", _button.x - 25 , _button.w*3 -15  , 15,15 ):bg({255,255,255,170}):onPress(function()  
     if tile_page_count > 1 then
        tile_page_count = tile_page_count -1
     end
 	end)
 
-  -- do selection buttons
+  -- create selection buttons
   for i=0,  1 do
     _button.x = x_def
     for j = 0 , 9 do
@@ -305,19 +320,19 @@ if arg[#arg] == "-debug" then require("mobdebug").start() end
     _button.start = btn[1].id
     --print(_button.start)
 
-initSave(x_def,_button)
----------------------
----         toolbox
----------------------
-lb_bg_tool = gooi.newLabel("",0, 4*_button.h , x_def-50, gr.getHeight()-(4*_button.h)):setOpaque(true):roundness(0, 0)
+  initSave(x_def,_button)
+  ---------------------
+  ---         toolbox
+  ---------------------
+  lb_bg_tool = gooi.newLabel("",0, 4*_button.h , x_def-50, gr.getHeight()-(4*_button.h)-30):setOpaque(true):roundness(0, 0)
 
-lb_tbx  = gooi.newLabel("Toolbox",5, 185,210,35):setOrientation("center"):setOpaque(true):bg("218AB8"):fg("FFFFFF")
-          :roundness(0,0)
+  lb_tbx  = gooi.newLabel("Toolbox",5, 185,210,35):setOrientation("center"):setOpaque(true):bg("218AB8"):fg("FFFFFF")
+            :roundness(0,0)
 
-lb_size_t  = gooi.newLabel("tile size:",30, 230)
-txt_tile_w = gooi.newText({ text = "32" ,x = 80 , y = 230, w = 50})
-txt_tile_h = gooi.newText({ text = "32" ,x = 150 ,y = 230, w = 50})
-gooi.newLabel("/",140, 230)
+  lb_size_t  = gooi.newLabel("tile size:",30, 230)
+  txt_tile_w = gooi.newText({ text = "32" ,x = 80 , y = 230, w = 50})
+  txt_tile_h = gooi.newText({ text = "32" ,x = 150 ,y = 230, w = 50})
+  gooi.newLabel("/",140, 230)
 
 
   lb_w  = gooi.newLabel("w:",30, 280)
@@ -329,8 +344,12 @@ gooi.newLabel("/",140, 230)
   lb_set = gooi.newLabel("Tileset",30, 310)
   spi_sets = gooi.newSpinner({min = 0, max = 0 , value = 0, x = 30, y = 335 , w = 180})
 
-	rad_add    = gooi.newRadio({ x = 30, y = 370 , text = "   add tile", radioGroup = "g1", selected = true,w = 150}):roundness(0.8,1)
-	rad_remove = gooi.newRadio({ x = 30, y = 400 , text = "remove tile", radioGroup = "g1",w = 150})
+	rad_add    = gooi.newRadio({ x = 30, y = 370 , text = "   add tile", radioGroup = "g1", selected = true,w = 150}):roundness(0,0):onPress(function()  
+    bDraw = true
+	end)
+	rad_remove = gooi.newRadio({ x = 30, y = 400 , text = "remove tile", radioGroup = "g1",w = 150}):roundness(0,0):onPress(function()  
+    bDraw = false
+	end)
   
   lb_layer = gooi.newLabel("Layer",30, 430)
   spi_layer = gooi.newSpinner({min = 1, max = 3 , value = 1, x = 30, y = 480 , w = 180})
@@ -344,6 +363,8 @@ gooi.newLabel("/",140, 230)
     end
   end):change()
 
+
+  bg_status = gooi.newLabel("", 0, height-30 ,width--[[_button.w*13]] , 4* _button.h):setOpaque(true):roundness(0, 0)
 ---------------------
 ---         editor
 ---------------------
@@ -356,7 +377,7 @@ gooi.newLabel("/",140, 230)
       map[_][_2] = {}
     end
  end
- 
+ --print(#map[1].." "..#map[1][1])
  
  
  
@@ -375,16 +396,16 @@ function initSave(x_def,_button)
     
    
   lb_layer = gooi.newLabel("Scale",0, 90)
-  scale_1  = gooi.newRadio({ x = 40, y = 90 , text = "1x", radioGroup = "g2", selected = true,w = 55}):roundness(0.8,1):onRelease(function()
+  scale_1  = gooi.newRadio({ x = 40, y = 90 , text = "1x", radioGroup = "g2", w = 55}):roundness(0,1):onRelease(function()
 		scale, gooi.sx, gooi.sy = 1, 1, 1
 		love.window.setMode(wCanvas * scale, hCanvas * scale)
 	end)
   
-	scale_2  = gooi.newRadio({ x = 95, y = 90 , text = "2x", radioGroup = "g2",w = 55}):roundness(0.8,1):onRelease(function()
+	scale_2  = gooi.newRadio({ x = 95, y = 90 , text = "2x", radioGroup = "g2",selected = true,w = 55}):roundness(0,1):onRelease(function()
 		scale, gooi.sx, gooi.sy = 0.75, 0.75, 0.75
 		love.window.setMode(wCanvas * scale, hCanvas * scale)
 	end)
-  scale_3  = gooi.newRadio({ x = 150, y = 90 , text = "3x", radioGroup = "g2",w = 55}):roundness(0.8,1):onRelease(function()
+  scale_3  = gooi.newRadio({ x = 150, y = 90 , text = "3x", radioGroup = "g2",w = 55}):roundness(0,1):onRelease(function()
 		scale, gooi.sx, gooi.sy = 0.5, 0.5, 0.5
 		love.window.setMode(wCanvas * scale, hCanvas * scale)
 	end)
@@ -404,7 +425,7 @@ function love.draw()
     gr.rectangle("line", 230 , 190, 600,600)
     
     
-    if #tilesets_img > 0 then
+    if #tilesets_img > 0 and txt_map_w.text ~= "" and txt_map_h.text ~= ""then
     -- set the icon set
       --draw_button_preview(spi_sets.value,lbl2.text)
      draw_map()
@@ -454,7 +475,8 @@ function love.draw()
     end
     
 
-    gr.print(love.timer.getFPS().." FPS")
+    gr.print(love.timer.getFPS().." FPS",width-50,height -20 )
+    
   
   gr.setCanvas()
   gr.draw(canvas,0,0,0,scale,scale)
@@ -464,25 +486,42 @@ end
 
 function love.update(dt)
  
-    old_w = 39 
-    old_h = 20
+  if txt_map_h.text == "" then
+    txt_map_h.text = "0"
+  end
   
-  if txt_map_h.text ~= old_h and txt_map_h.text ~= ""then
+  if txt_map_w.text == "" then
+    txt_map_w.text = "0"
+  end
+  
+  if txt_map_h.text*1 ~= old_h or txt_map_w.text*1 ~= old_w then
     -- shorten or longer map()
-    if tonumber(txt_map_h.text) > old_h then
-      for _ = old_h , tonumber(txt_map_h.text) do
+    if txt_map_h.text*1 > old_h then
+      for _ = old_h , txt_map_h.text*1-1 do
         map[1][_+1] = {}
         map[2][_+1] = {}
         map[3][_+1] = {}
       end
-    else
-      for _ = old_h , tonumber(txt_map_h.text) do
-        map[1][_+1] = nil
-        map[2][_+1] = nil
-        map[3][_+1] = nil
-      end
+
     end
-    old_h = txt_map_h.text
+    
+    if txt_map_h.text*1 < old_h then
+      for _ = old_h , txt_map_h.text*1-1 do
+        table.remove(map[1],_+1)
+        table.remove(map[2],_+1)
+        table.remove(map[3],_+1)
+      end
+
+    end
+    
+    
+    
+    
+    --print("Map h: "..#map[1].." Map w: "..#map[1][1])
+
+    
+    old_h = txt_map_h.text*1
+    old_w = txt_map_w.text*1
   end
   
   
@@ -570,6 +609,7 @@ end
 
 
 function love.mousepressed(x, y, button)
+    gooi.pressed() 
   if x > 230*scale and y > 190*scale then
    --print (x.." "..y)
    --print("beep\n")
@@ -584,8 +624,12 @@ function love.mousepressed(x, y, button)
      if row  > txt_map_h.text*1 or col > txt_tile_w.text*1 then
        return
      end
-     map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
      
+     if bDraw then
+        map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
+     else
+        map[spi_layer.value][row][col] = nil 
+     end
      
      --print(btn_selected)
      --print((btn_selected*lbl2.text)/1000 + spi_sets.value +1 )
@@ -595,7 +639,7 @@ function love.mousepressed(x, y, button)
      --print("Row: "..row.." Col:"..col)
    end
   end
-  gooi.pressed() 
+
 end
 
 function love.mousemoved( x, y, dx, dy, istouch )
@@ -609,7 +653,15 @@ function love.mousemoved( x, y, dx, dy, istouch )
    if row  > txt_map_h.text*1 or col > txt_tile_w.text*1 then
        return
    end
-   map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
+   
+   if bDraw then
+    map[spi_layer.value][row][col] =  (btn_selected+ ((lbl2.text*20)-19)) /1000 + spi_sets.value +1
+   else
+     map[spi_layer.value][row][col] = nil
+   end
+    
+    
+    
    --print( map[spi_layer.value][row][col])
    end
 end

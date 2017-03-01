@@ -2,3 +2,6 @@
 /terrain_atlas.png
 /tile_grass.png
 /Tile_set.png
+/.project
+/map.lua
+/map_chec.lua
