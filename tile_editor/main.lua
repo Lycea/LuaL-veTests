@@ -39,11 +39,10 @@ local gr = love.graphics
 local kb = love.keyboard
 local mo = love.mouse
 
-
 local bDraw = true
+local MOVE_TIME = 0.15
 ------------------------------
 --  Own functions
---  TODO: Test
 ------------------------------
 function save_map()
 
@@ -159,7 +158,14 @@ function draw_map()
       x_ = 230 -- reset x value
    end
    
+   local r,g,b,a = love.graphics.getColor()
+   love.graphics.setColor(0,0,0,255)
+     gr.rectangle("fill",230,790,600,50)
+     gr.rectangle("fill",230+20*line_div_h,190,100,700)
+   love.graphics.setColor(r,g,b,a)
 end
+
+
 function enable_edit_dlg ()
     disable_edit_dlg(false)
 end
@@ -357,7 +363,7 @@ function love.load()
     bDraw = false
 	end)
   
-  lb_layer = gooi.newLabel("Layer",30, 430)
+  lb_layer = gooi.newLabel("Layer",30, 450)
   spi_layer = gooi.newSpinner({min = 1, max = 3 , value = 1, x = 30, y = 480 , w = 180})
   
   --lb_ = gooi.newLabel("Layer",30, 520)
@@ -370,7 +376,7 @@ function love.load()
   end):change()
 
 
-  bg_status = gooi.newLabel("", 0, height-30 ,width--[[_button.w*13]] , 4* _button.h):setOpaque(true):roundness(0, 0)
+  bg_status = gooi.newLabel("", 0, height-30 ,width--[[_button.w*13]] , 4* _button.h):bg("#3C0000"):border(1,"#FFFFFF"):setOpaque(true):roundness(0, 0)
 ---------------------
 ---         editor
 ---------------------
@@ -432,8 +438,8 @@ function love.draw()
     mx , my = love.mouse.getPosition()
     
     if mDebugMode then
-    gr.rectangle("fill",mx,my,1,1)
-    gr.print(mx.." "..my,mx - 50,my -20 )
+      gr.rectangle("fill",mx,my,1,1)
+      gr.print(mx.." "..my,mx - 50,my -20 )
     end
     
     gr.setLineWidth(1)
@@ -444,6 +450,9 @@ function love.draw()
     if #tilesets_img > 0 and txt_map_w.text ~= "" and txt_map_h.text ~= ""then
     -- set the icon set
       --draw_button_preview(spi_sets.value,lbl2.text)
+      txt_tile_h:setEnabled(false)
+      txt_tile_w:setEnabled(false)
+      
      draw_map()
     end
     --draw lines to divide the rectangle
@@ -501,7 +510,7 @@ end
 
 
 function love.update(dt)
- 
+ --print(dt)
   if txt_map_h.text == "" then
     txt_map_h.text = "0"
   end
@@ -544,6 +553,32 @@ function love.update(dt)
   lbl2:setText(tile_page_count)
   gooi.update(dt)
   
+  
+    olddt = (olddt or 0) + dt
+    
+    --print(math.floor(olddt*10)%2)
+    if olddt > MOVE_TIME then
+      olddt = olddt - MOVE_TIME
+      
+       if love.keyboard.isDown("up") then
+        love.keypressed("up")
+      end
+      if love.keyboard.isDown("down") then
+        love.keypressed("down")
+      end
+      if love.keyboard.isDown("right") then
+        love.keypressed("right")
+      end
+      if love.keyboard.isDown("left") then
+        love.keypressed("left")
+      end
+    end
+    --sif olddt%0.10  
+  
+ 
+  
+
+  
 end
 
 
@@ -561,18 +596,6 @@ function love.filedropped(file)
     tilesets_img[count+1]= gr.newImage(file)
     print(#tilesets_img)
     
-  
---  tiles.width = 32 
---  tiles.hight = 32
---  grass_set_h = tilesets.grass:getHeight()
---  grass_set_w = tilesets.grass:getWidth()
-  
---  grass_quads = {
---      love.graphics.newQuad(0,   0, tiles.width, tiles.hight, grass_set_w, grass_set_h), -- 1 = dirt
---      love.graphics.newQuad(32,  0, tiles.width, tiles.hight, grass_set_w, grass_set_h), -- 2 = box
---      love.graphics.newQuad(0,  32, tiles.width, tiles.hight, grass_set_w, grass_set_h), -- 3 = flowers
---      love.graphics.newQuad(32, 32, tiles.width, tiles.hight, grass_set_w, grass_set_h)  -- 4 = boxtop
---    }
 
   -- set the tile width/hight for the set
   print ("width  "..txt_tile_w.text)
@@ -626,10 +649,8 @@ end
 
 function love.mousepressed(x, y, button)
     gooi.pressed() 
-  if x > 230*scale and y > 190*scale and x < 830*scale and y < height -50*scale then
-    print("In x:"..x.." y:"..y)
-    print("Max x:"..830*scale.." y:"..height -50*scale)
-    --print("Max x:"..x.." y:"..y)
+  if x > 230*scale and y > 190*scale and x < 830*scale and y < (height -50)*scale then
+
    --print (x.." "..y)
    --print("beep\n")
    if #tilesets_img > 0 and btn_selected ~= 0 then
@@ -662,7 +683,7 @@ function love.mousepressed(x, y, button)
 end
 
 function love.mousemoved( x, y, dx, dy, istouch )
-  if b_mpr and x > 230*scale and y > 190*scale and x < 830*scale and y < height -50*scale then
+  if b_mpr and x > 230*scale and y > 190*scale and x < 830*scale and y < (height -50)*scale then
    --print (x.." "..y)
    --print("moved\n")
    local col = math.floor((x- 230*scale) / (line_div_h*scale) )  +1 + (start_shown_tile_s-1)
@@ -679,11 +700,10 @@ function love.mousemoved( x, y, dx, dy, istouch )
      map[spi_layer.value][row][col] = nil
    end
     
-    
-    
-   --print( map[spi_layer.value][row][col])
    end
 end
+
+
 
 function love.textinput(text)
 	gooi.textinput(text)
@@ -691,10 +711,12 @@ end
 
 
 function love.keypressed(key)
+  
 	gooi.keypressed(key)
 	if key == "escape" then
 		quit()
   else
+    print("-")
     if key == "left" then
       if start_shown_tile_s ~= 1 then
         start_shown_tile_s = start_shown_tile_s -1
